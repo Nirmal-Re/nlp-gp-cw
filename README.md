@@ -8,6 +8,17 @@ git clone https://github.com/Nirmal-Re/nlp-gp-cw.git
 ```bash
 cd nlp-gp-cw
 ```
+Create a virutal env using 
+```bash
+virtualenv env
+```
+
+If you don't have virutalenv, install it using -
+
+```bash
+pip install virtualenv
+```
+
 3. Activate the virtual environment: On Windows, run:
 ```bash
 env/Scripts/activate
