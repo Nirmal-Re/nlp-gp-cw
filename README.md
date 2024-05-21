@@ -2,7 +2,7 @@
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/username/repository.git
+git clone https://github.com/Nirmal-Re/nlp-gp-cw.git
 ```
 2. Navigate to the repository
 ```bash
