@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Document</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+      integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+  <body>
+    <div id="messages"></div>
+    <input type="text" id="message" placeholder="Message" required />
+    <button id="sendBtn">Send</button>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#sendBtn").click(function () {
+          var message = $("#message").val();
+          $.ajax({
+            url: "/predict",
+            data: { message: message },
+            type: "POST",
+            success: function (response) {
+              // Handle the response her
+              results = response.results;
+              for (let i = 0; i < results.length; i++) {
+                $("#messages").append($("<p>").text(results[i]));
+              }
+            },
+            error: function (error) {
+              console.log(error);
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
