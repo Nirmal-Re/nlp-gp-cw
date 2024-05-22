@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <!-- <link rel="stylesheet" href="../static/css/style.css" /> -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"
+      integrity="sha512-ykZ1QQr0Jy/4ZkvKuqWn4iF3lqPZyij9iRv6sGqLRdTPkY69YX6+7wvVGmsdBbiIfN/8OdsI7HABjvEok6ZopQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
       integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -13,13 +24,33 @@
     ></script>
   </head>
   <body>
-    <div id="messages"></div>
-    <input type="text" id="message" placeholder="Message" required />
-    <button id="sendBtn">Send</button>
+    <section class="hero">
+      <div class="container">
+        <div class="sub-container">
+          <div id="messages-section"></div>
+          <div class="request-section">
+            <input
+              type="text"
+              class="form-control"
+              id="message"
+              placeholder="Message"
+              required
+            />
+            <button id="sendBtn">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
     <script type="text/javascript">
       $(document).ready(function () {
-        $("#sendBtn").click(function () {
+        function scrollToBottom() {
+          $("#messages-section").scrollTop(
+            $("#messages-section")[0].scrollHeight
+          );
+        }
+        function sendMessage() {
           var message = $("#message").val();
+          $("#messages-section").append($("<p class='right'>").text(message));
           $.ajax({
             url: "/predict",
             data: { message: message },
@@ -27,14 +58,26 @@
             success: function (response) {
               // Handle the response her
               results = response.results;
-              for (let i = 0; i < results.length; i++) {
-                $("#messages").append($("<p>").text(results[i]));
-              }
+              $("#messages-section").append(
+                $("<p class='left'>").text(results.join(", "))
+              );
+
+              $("#message").val("");
             },
             error: function (error) {
               console.log(error);
             },
           });
+          $("#message").val("");
+          scrollToBottom();
+        }
+
+        $("#sendBtn").click(sendMessage);
+        $("#message").keypress(function (event) {
+          var keycode = event.keyCode ? event.keyCode : event.which;
+          if (keycode == "13") {
+            sendMessage();
+          }
         });
       });
     </script>

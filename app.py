@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 from transformers import BertForTokenClassification,BertTokenizerFast
 import torch
 from collections import Counter
+import json
+from datetime import datetime 
+import asyncio
 
     
 def load_model_and_tokenizer(path):
@@ -13,10 +16,30 @@ tokenizer, model = load_model_and_tokenizer("Nirmal-re/bert-finetuned-ner-for-de
 
 app = Flask(__name__)
 
+
+#Function to write data to file
+def write_to_file(dictionary):
+    try:
+        with open("user_queries.json", "r") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        data = {"all_queries": []}
+
+    data["all_queries"].append(dictionary)
+ 
+    with open("user_queries.json", "w") as f:
+        json.dump(data, f)
+    return "Data written to file"
+
+
+#Landing Page endpoint
 @app.route("/")
 def hello():
     return render_template("index.html")
 
+
+
+#predit endpoint
 @app.route('/predict', methods=['POST'])
 def predict():
     message = request.form['message']
@@ -40,15 +63,23 @@ def predict():
             original_tokens.append(token)
             one_to_one_predictions.append([predicted])
     results = []
-    print(original_tokens)
+
     for i, pred in enumerate(one_to_one_predictions):
         if len(pred) == 1:
-            value = f"{original_tokens[i]}: {pred[0]}"
+            value = f"{original_tokens[i]} => {pred[0]}"
             results.append(value)
         if len(pred) > 1:
              most_common_pred = Counter(pred).most_common(1)[0][0]
-             value = f"{original_tokens[i]}: {most_common_pred}"
+             value = f"{original_tokens[i]} => {most_common_pred}"
              results.append(value)
+    dictionary = {
+    "query_datetime": f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+    "orginal_query": message,
+    "tokenized_query": tokens,
+    "predicted_labels": true_predictions,
+    "results": results
+    }
+    write_to_file(dictionary)
 
     return {"results": results}
 
