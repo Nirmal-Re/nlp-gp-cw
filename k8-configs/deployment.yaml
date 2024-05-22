@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lm-server-deployment
+  labels:
+    app: lm-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lm-server
+  template:
+    metadata:
+      labels:
+        app: lm-server
+    spec:
+      containers:
+        - name: lm-server
+          image: nirmalbhandari/dashboard
+          ports:
+            - containerPort: 5000
+
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lm-server-service
+spec:
+  selector:
+    app: lm-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
