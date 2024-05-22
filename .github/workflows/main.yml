@@ -6,8 +6,8 @@ on:
 
 jobs:
   push_to_registry:
+    runs-on: self-hosted
     name: Push Docker Image to Dockerhub
-    runs-on: ubuntu:latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
