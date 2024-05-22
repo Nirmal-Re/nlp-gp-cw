@@ -1,24 +1,41 @@
 from flask import Flask, render_template, request
-from transformers import BertForTokenClassification,BertTokenizerFast
+from transformers import AutoModelForTokenClassification, AutoTokenizer
 import torch
 from collections import Counter
-
     
 def load_model_and_tokenizer(path):
-    tokenizer = BertTokenizerFast.from_pretrained(path)
-    model = BertForTokenClassification.from_pretrained(path)
+    tokenizer = AutoTokenizer.from_pretrained(path)
+    model = AutoModelForTokenClassification.from_pretrained(path)
     return tokenizer, model
 
-tokenizer, model = load_model_and_tokenizer("Nirmal-re/bert-finetuned-ner-for-deployment")
+#tokenizer, model = load_model_and_tokenizer("Nirmal-re/bert-finetuned-ner-for-deployment")
+tokenizer, model = load_model_and_tokenizer("paullatham1/roberta-finetuned-ner-longforms")
+
+label_encoding = {0: "B-O", 1: "B-AC", 2: "B-LF", 3: "I-LF"}
 
 app = Flask(__name__)
+
+def predict(text):
+    tokens = tokenizer(text, return_tensors="pt", truncation=True, max_length=512)
+    with torch.no_grad():
+        output = model(**tokens)
+    predictions = torch.argmax(output.logits, dim=2).tolist()[0]
+    labels = [label_encoding[p] for p in predictions]
+    return labels
 
 @app.route("/")
 def hello():
     return render_template("index.html")
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.post("/predict/")
+async def get_prediction(text):
+    labels = predict(text)
+    #log_entry = f"Input: {text} | Prediction: {labels}"
+    #logging.info(log_entry)
+    return {"labels": labels}
+
+
+'''def predict():
     message = request.form['message']
     text = message.split(" ")
     inputs = tokenizer(text, return_tensors="pt", truncation=True, is_split_into_words=True)
@@ -50,7 +67,8 @@ def predict():
              value = f"{original_tokens[i]}: {most_common_pred}"
              results.append(value)
 
-    return {"results": results}
+    return {"results": results}'''
+
 
 if __name__ == "__main__":
     app.run(host='localhost', port=5000)
