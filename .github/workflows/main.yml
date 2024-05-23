@@ -26,3 +26,22 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/lm-server:latest
+
+  # deploy:
+  #   needs: push_to_registry
+  #   runs-on: self-hosted
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
+
+  #     - name: Set up Kubectl
+  #       uses: azure/setup-kubectl@v1
+
+  #     - name: Configure Kubernetes context
+  #       uses: azure/k8s-set-context@v1
+  #       with:
+  #         kubeconfig: ${{ secrets.KUBECONFIG }}
+
+  #     - name: Deploy to Kubernetes
+  #       run: kubectl apply -f ./K8-configs/deployment.yaml
